@@ -2,7 +2,7 @@ import os
 import discord
 from discord.ext import commands
 
-async def load_cogs(bot):
+async def load_cogs(bot) -> None:
     """Load all cogs from the cogs directory."""
 
     for cog in os.listdir('./lib/cogs'):
@@ -13,19 +13,28 @@ async def load_cogs(bot):
             except Exception as e:
                 print(f'Failed to load cog {cog}: {e}')
 
-async def on_ready(bot):
-    print(f'Logged in as {bot.user} (ID: {bot.user.id})')
-    print('------')
+async def on_ready() -> None:
+    print("Bot online!")
+    print('------\n\n')
 
-async def main():
+def bot_intents() -> discord.Intents:
+    """Return the intents. Intents are like permissions for the bot."""
+
     intents = discord.Intents.default()
     intents.message_content = True
     intents.members = True
-    async with bot := commands.Bot():
+    return intents 
+
+async def main() -> None:
+    bot = commands.Bot(command_prefix='!', intents=bot_intents())
+    async with bot:
         await load_cogs(bot)
-        await bot.add_listener(on_ready)
+        bot.add_listener(on_ready)
         await bot.start(os.environ["PYTHON_BOT_TOKEN"])
 
 if __name__ == "__main__":
     import asyncio
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\nBot stopped.")
