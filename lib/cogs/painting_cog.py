@@ -9,4 +9,4 @@ class PaintingCog(commands.Cog):
         await ctx.send('Painting!')
 
 async def setup(client):
-    client.add_cog(PaintingCog(client))
+    await client.add_cog(PaintingCog(client))
