@@ -32,6 +32,22 @@ class MovementCog(commands.Cog):
 
         await ctx.send(f"Moved to {coordinates}!")
 
+    @commands.command()
+    async def where(self, ctx: Context):
+        """Get your current coordinates."""
+        coordinates = find_user_coordinates(ctx.author.id)
+        if coordinates is None:
+            await ctx.send("You have not moved yet!")
+            return
+
+        await ctx.send(f"Your current coordinates are {coordinates}!")
+    
+    @commands.command()
+    async def reset(self, ctx: Context):
+        """Reset your coordinates to (0,0)"""
+        set_user_coordinates(ctx.author.id, (0, 0))
+        await ctx.send("Your coordinates have been reset to (0, 0)!")
+
 
 async def setup(client):
     await client.add_cog(MovementCog(client))
