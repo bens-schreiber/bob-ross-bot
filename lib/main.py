@@ -5,7 +5,7 @@ from discord.ext import commands
 async def load_cogs(bot) -> None:
     """Load all cogs from the cogs directory."""
 
-    for cog in os.listdir('./lib/cogs'):
+    for cog in os.listdir('./cogs'):
         if cog.endswith('.py'):
             try:
                 await bot.load_extension(f'cogs.{cog[:-3]}')
