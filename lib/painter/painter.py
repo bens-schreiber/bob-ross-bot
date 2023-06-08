@@ -2,6 +2,8 @@ from typing import Tuple
 from PIL import Image, ImageDraw
 from colour import Color
 import discord
+import threading
+from threading import Lock
 
 # Define the canvas size
 canvas_width = 800
@@ -11,13 +13,17 @@ canvas_height = 800
 # This is cached in memory, so it isnt saved on bot restart
 canvas = Image.new("RGB", (canvas_width, canvas_height), color="white")
 
+# Mutex lock so the canvas doesn't get all weird with async requests
+canvas_mutex: Lock = threading.Lock()
 
 def draw_line_on_image(
-        color: str = "black",
-        direction: str = "right",
-        length: float = 0,
-        start: Tuple[int, int] = (canvas_height//2, canvas_width//2)) -> Tuple[int, int]:
-    width, height = canvas.size
+    color: str = "black", 
+    direction: str = "right", 
+    length: float = 0, 
+    start: Tuple[int, int] = (canvas_height//2, canvas_width//2)) -> Tuple[int, int]:
+    """Draw a line on the image and return the end point of the line."""
+    
+    width, height = canvas_width, canvas_height
 
     # Adjust the length if it exceeds the image size
     if length > width or length > height:
@@ -42,8 +48,12 @@ def draw_line_on_image(
     end_x, end_y = direction_map[direction]()
 
     # Draw the line on the image
-    draw = ImageDraw.Draw(canvas)
-    draw.line([(start_x, start_y), (end_x, end_y)], fill=rgb_color, width=2)
+    canvas_mutex.acquire()
+    try:
+        draw = ImageDraw.Draw(canvas)
+        draw.line([(start_x, start_y), (end_x, end_y)], fill=rgb_color, width=5)
+    finally:
+        canvas_mutex.release()
 
     return (end_x, end_y)
 
